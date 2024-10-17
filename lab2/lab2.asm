@@ -1,4 +1,4 @@
-; nasm -f bin lab2.asm -o output 
+; nasm -f bin lab2.asm -o output.com
 ; -> idziesz do DOSBOX-a
 ; -> Trzeba zamontować directory
 ; -> mount H C:\Users\s223287\Desktop
