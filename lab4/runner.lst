@@ -1,0 +1,22 @@
+     1                                  section .txt
+     2                                      org 100h
+     3                                  
+     4                                  start:
+     5 00000000 A0[0000]                    mov al, [liczba]
+     6 00000003 BA0200                      mov dx, 2
+     7 00000006 F7E2                        mul dx
+     8                                  
+     9 00000008 88C2                        mov dl, al
+    10 0000000A B364                        mov bl, 100
+    11 0000000C F6F3                        div bl
+    12                                  
+    13 0000000E 88C2                        mov dl, al
+    14 00000010 80C230                      add dl, '0'
+    15 00000013 B402                        mov ah, 2
+    16 00000015 CD21                        int 21h
+    17                                  
+    18 00000017 B44C                        mov ah, 4ch
+    19 00000019 CD21                        int 21h
+    20                                  
+    21                                  section .data
+    22 00000000 0A                          liczba db 10

@@ -1,0 +1,51 @@
+     1                                  section .data
+     2 00000000 4E756D6265723A2024          msg db 'Number: $'
+     3                                  
+     4                                  section .bss
+     5 00000000 ??                          digit1 resb 1
+     6 00000001 ??                          digit2 resb 1
+     7 00000002 ??                          digit3 resb 1
+     8                                  
+     9                                  section .text
+    10                                      org 0x100         ; Program COM startuje od adresu 0x100
+    11                                  
+    12                                  start:
+    13 00000000 B87B00                      mov ax, 123       ; Liczba do wyświetlenia
+    14                                  
+    15                                      ; Oblicz setki
+    16 00000003 BB6400                      mov bx, 100       ; Dzielnik
+    17 00000006 F7F3                        div bx            ; AX / 100, wynik w AX (cyfra setek), reszta w DX
+    18 00000008 0430                        add al, '0'       ; Zamień cyfrę na ASCII
+    19 0000000A A2[0000]                    mov [digit1], al  ; Zapisz pierwszą cyfrę
+    20                                  
+    21                                      ; Oblicz dziesiątki
+    22 0000000D 89D0                        mov ax, dx        ; Przenieś resztę (pozostało 23)
+    23 0000000F BB0A00                      mov bx, 10        ; Dzielnik
+    24 00000012 F7F3                        div bx            ; AX / 10, wynik w AX (cyfra dziesiątek), reszta w DX
+    25 00000014 0430                        add al, '0'       ; Zamień cyfrę na ASCII
+    26 00000016 A2[0100]                    mov [digit2], al  ; Zapisz drugą cyfrę
+    27                                  
+    28                                      ; Oblicz jedności
+    29 00000019 88D0                        mov al, dl        ; Reszta po dzieleniu (cyfra jedności)
+    30 0000001B 0430                        add al, '0'       ; Zamień cyfrę na ASCII
+    31 0000001D A2[0200]                    mov [digit3], al  ; Zapisz trzecią cyfrę
+    32                                  
+    33                                      ; Wyświetlenie wiadomości
+    34 00000020 B409                        mov ah, 9       ; Funkcja wyświetlenia ciągu znaków
+    35 00000022 8D16[0000]                  lea dx, [msg]     ; Załaduj adres wiadomości
+    36 00000026 CD21                        int 21h           ; Wywołanie przerwania DOS
+    37                                  
+    38                                      ; Wyświetlenie cyfr
+    39 00000028 B402                        mov ah, 2       ; Funkcja wyświetlenia pojedynczego znaku
+    40 0000002A 8A16[0000]                  mov dl, [digit1]  ; Pierwsza cyfra (setki)
+    41 0000002E CD21                        int 21h
+    42                                  
+    43 00000030 8A16[0100]                  mov dl, [digit2]  ; Druga cyfra (dziesiątki)
+    44 00000034 CD21                        int 21h
+    45                                  
+    46 00000036 8A16[0200]                  mov dl, [digit3]  ; Trzecia cyfra (jedności)
+    47 0000003A CD21                        int 21h
+    48                                  
+    49                                      ; Zakończenie programu
+    50 0000003C B44C                        mov ah, 4Ch       ; Funkcja zakończenia programu
+    51 0000003E CD21                        int 21h
