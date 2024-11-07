@@ -3,30 +3,65 @@
      3                                  global _start
      4                                  
      5                                  _start:
-     6                                  input_loop:
-     7                                      ; Display prompt message
-     8 00000000 B409                        mov ah, 9                ; DOS function to display a string
-     9 00000002 BA[0000]                    mov dx, prompt           ; Load the address of the prompt message
-    10 00000005 CD21                        int 21h                ; Call DOS interrupt to display the prompt
-    11                                  
-    12                                      ; Read a character from input
-    13 00000007 B401                        mov ah, 1                ; DOS function to read a character from input
-    14 00000009 CD21                        int 21h                 ; Call DOS interrupt to read the character
-    15 0000000B 3C24                        cmp al, 36              ; Check if the character is '$'
-    16 0000000D 7408                        je end_loop              ; If it is, jump to end the loop
-    17                                  
-    18                                      ; Display the character entered
-    19 0000000F 88C2                        mov dl, al               ; Move the character to DL for printing
-    20 00000011 B402                        mov ah, 2                ; DOS function to print a character
-    21 00000013 CD21                        int 21h                ; Call DOS interrupt to print the character
-    22                                  
-    23 00000015 EBE9                        jmp input_loop           ; Loop back to prompt for the next character
-    24                                  
-    25                                  end_loop:
-    26 00000017 B8004C                      mov ax, 0x4C00           ; DOS function to terminate the program
-    27 0000001A CD21                        int 21h                 ; Call DOS interrupt to end the program
-    28                                  
-    29                                  section .data
-    30 00000000 456E74657220612063-         prompt db "Enter a character: $"  ; Prompt message to display
-    30 00000009 68617261637465723A-
-    30 00000012 2024               
+     6                                      ; Wyświetl ciąg wejściowy przed usunięciem znaków
+     7 00000000 BA[0000]                    mov dx, input_string        ; Załaduj adres ciągu wejściowego do DX
+     8 00000003 B409                        mov ah, 9                   ; Funkcja DOS do wyświetlania ciągu zakończonego '$'
+     9 00000005 CD21                        int 21h                     ; Wywołaj przerwanie DOS
+    10                                  
+    11                                      ; Dodaj nową linię
+    12 00000007 BA[2C00]                    mov dx, newline
+    13 0000000A B409                        mov ah, 9
+    14 0000000C CD21                        int 21h
+    15                                  
+    16                                      ; Przetwórz ciąg, usuwając określone znaki
+    17 0000000E B91400                      mov cx, 20                  ; Ustaw licznik na długość ciągu wejściowego
+    18 00000011 BB[1600]                    mov bx, output_string       ; Ustaw wskaźnik na początek bufora wyjściowego
+    19 00000014 BE[0000]                    mov si, input_string        ; Wskaźnik na początek ciągu wejściowego
+    20                                  
+    21                                  process_loop:
+    22 00000017 8A04                        mov al, [si]                ; Pobierz znak z ciągu wejściowego
+    23 00000019 46                          inc si                      ; Przesuń wskaźnik wejściowy do następnego znaku
+    24 0000001A 49                          dec cx                      ; Zmniejsz licznik znaków
+    25 0000001B 3C24                        cmp al, '$'                 ; Sprawdź, czy to koniec ciągu
+    26 0000001D 740F                        je finish_output            ; Jeśli tak, zakończ przetwarzanie
+    27                                  
+    28 0000001F 3C[2A]                      cmp al, to_remove1          ; Porównaj z pierwszym znakiem do usunięcia
+    29 00000021 7407                        je skip_character           ; Jeśli to znak do usunięcia, pomiń go
+    30                                  
+    31 00000023 3C[2B]                      cmp al, to_remove2          ; Porównaj z drugim znakiem do usunięcia
+    32 00000025 7403                        je skip_character           ; Jeśli to znak do usunięcia, pomiń go
+    33                                  
+    34 00000027 8807                        mov [bx], al                ; Skopiuj znak do bufora wyjściowego
+    35 00000029 43                          inc bx                      ; Przesuń wskaźnik bufora wyjściowego
+    36                                  
+    37                                  skip_character:
+    38 0000002A 85C9                        test cx, cx                 ; Sprawdź, czy licznik wynosi zero
+    39 0000002C 75E9                        jnz process_loop            ; Jeśli nie, kontynuuj pętlę
+    40                                  
+    41                                  finish_output:
+    42 0000002E C60724                      mov byte [bx], '$'          ; Dodaj końcowy znak '$' do bufora wyjściowego
+    43                                  
+    44                                      ; Dodaj nową linię przed wyświetleniem wynikowego ciągu
+    45 00000031 BA[2C00]                    mov dx, newline
+    46 00000034 B409                        mov ah, 9
+    47 00000036 CD21                        int 21h
+    48                                  
+    49                                      ; Wyświetl wynikowy ciąg po usunięciu znaków
+    50 00000038 BA[1600]                    mov dx, output_string       ; Załaduj adres wynikowego ciągu do DX
+    51 0000003B B409                        mov ah, 9                   ; Funkcja DOS do wyświetlania ciągu zakończonego '$'
+    52 0000003D CD21                        int 21h                     ; Wywołaj przerwanie DOS
+    53                                  
+    54                                      ; Zakończ program
+    55 0000003F B8004C                      mov ax, 0x4C00              ; Funkcja zakończenia programu
+    56 00000042 CD21                        int 21h                     ; Przerwanie DOS
+    57                                  
+    58                                  section .data
+    59 00000000 616263646561626364-         input_string db "abcdeabcdeabcdeabcde$", '$'    ; Ciąg wejściowy zakończony '$'
+    59 00000009 656162636465616263-
+    59 00000012 64652424           
+    60 00000016 242424242424242424-         output_string db 20 dup('$')                    ; Bufor na wynikowy ciąg (20 znaków + '$' na końcu)
+    60 0000001F 242424242424242424-
+    60 00000028 2424               
+    61 0000002A 63                          to_remove1 db "c"                               ; Pierwszy znak do usunięcia
+    62 0000002B 65                          to_remove2 db "e"                               ; Drugi znak do usunięcia
+    63 0000002C 0D0A24                      newline db 13, 10, "$"                          ; Nowa linia do oddzielenia tekstu

@@ -12,7 +12,7 @@ input_loop:
     ; Read a character from input
     mov ah, 1                ; DOS function to read a character from input
     int 21h                 ; Call DOS interrupt to read the character
-    cmp al, 36              ; Check if the character is '$'
+    cmp al, 36           ; Check if the character is '$'
     je end_loop              ; If it is, jump to end the loop
 
     ; Display the character entered
