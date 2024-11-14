@@ -54,7 +54,7 @@ finish_output:
     ; Zakończ program
     mov ax, 0x4C00              ; Funkcja zakończenia programu
     int 21h                     ; Przerwanie DOS
-
+    
 section .data
     input_string db "abcdeabcdeabcdeabcde$", '$'    ; Ciąg wejściowy zakończony '$'
     output_string db 20 dup('$')                    ; Bufor na wynikowy ciąg (20 znaków + '$' na końcu)
