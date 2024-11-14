@@ -18,36 +18,23 @@ get_input:
     call print_string
     call get_number
     mov [min], ax
-
-    ; Debugowanie - wypisz wartość `min`
-    mov dx, min_value_msg
-    call print_string
-    mov ax, [min]
-    call print_number
-    call new_line
-
+    
     ; Pobierz maksymalną wartość
     mov dx, prompt2
     call print_string
     call get_number
     mov [max], ax
 
-    ; Debugowanie - wypisz wartość `max`
-    mov dx, max_value_msg
-    call print_string
-    mov ax, [max]
-    call print_number
-    call new_line
-
     ; Sprawdź, czy min < max
     mov ax, [min]
     cmp ax, [max]
     jge invalid_range
 
+    ; Debugowanie to moja pasja
     mov dx, valid_range
     call print_string
-    ret
 
+    ret
 
 invalid_range:
     mov dx, invalid_input
@@ -60,24 +47,11 @@ invalid_range:
 ;----------------------------------------------
 find_primes:
     mov ax, [min]
-    mov dx, finding_primes
-    call print_string
     
 next_number:
     cmp ax, [max]    ; Czy osiągnęliśmy max?
     jg done          ; Jeśli tak, zakończ
-
-    ; Debugowanie to moja pasja
-    mov dx, current_number_msg
-    call print_string
-    call print_number
-
-    mov dx, max_value_msg
-    call print_string
-    mov ax, [max]
-    call print_number
-
-    ; Sprawdź, czy liczba jest pierwsza
+    
     push ax          ; Zachowaj wartość na stosie
     call is_prime    ; Sprawdź, czy liczba jest pierwsza
     pop ax           ; Przywróć wartość ze stosu
@@ -96,8 +70,6 @@ skip_number:
     jmp next_number
 
 done:
-    mov dx, done_msg
-    call print_string
     ret
 
 ;----------------------------------------------
@@ -136,34 +108,22 @@ not_a_prime:
 ; Zwraca wynik w AX
 ;----------------------------------------------
 get_number:
-    xor ax, ax
-    xor bx, bx
+    xor ax, ax         ; Wyzeruj AX, aby nie było śmieci
+    xor bx, bx         ; Wyzeruj BX (będzie używany do przechowywania liczby)
 
 read_digit:
-    mov ah, 01h
-    int 21h           ; Pobierz znak z klawiatury
-    cmp al, 13        ; Sprawdź, czy Enter
-    je done_input
+    mov ah, 01h        ; Funkcja DOS do odczytu znaku z klawiatury
+    int 21h            ; Pobierz znak od użytkownika
+    cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
+    je done_input      ; Jeśli Enter, zakończ wczytywanie
 
-    sub al, '0'       ; Konwertuj ASCII na cyfrę
-    mov dx, debug_digit
-    call print_string
-    mov dl, al
-    call print_char
-
-    imul bx, 10
-    add bx, ax
-    jmp read_digit
+    sub al, '0'        ; Konwertuj znak ASCII na cyfrę
+    imul bx, 10        ; Przesuń poprzednie cyfry o jedno miejsce w lewo
+    add bx, ax         ; Dodaj nową cyfrę do liczby
+    jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
 
 done_input:
-    mov ax, bx
-
-    ; Debugowanie - wypisz wprowadzoną liczbę
-    mov dx, debug_number_msg
-    call print_string
-    call print_number
-    call new_line
- 
+    mov ax, bx         ; Przenieś wynik do AX
     ret
 
 ;----------------------------------------------
@@ -172,11 +132,6 @@ done_input:
 ;----------------------------------------------
 print_string:
     mov ah, 9
-    int 21h
-    ret
-
-print_char:
-    mov ah, 2
     int 21h
     ret
 
@@ -224,14 +179,6 @@ section .data
     prompt2 db "Enter max value: $"
     valid_range db "Valid range!$"
     after_input db "Proceeding to find primes...$"
-    finding_primes db "Finding primes...$"
-    checking_primes db "Checking primes...$"
-    done_msg db "Done finding primes!$"
-    current_number_msg db "Current number: $"
-    min_value_msg db "Min value: $"
-    max_value_msg db "Max value: $"
-    debug_number_msg db "Number: $"
-    debug_digit db "Digit: $"
     invalid_input db "Invalid input! min must be less than max.$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
@@ -240,5 +187,5 @@ section .data
 ; Sekcja .bss - niezainicjalizowane zmienne
 ;----------------------------------------------
 section .bss
-    min resw 1
-    max resw 1
+    min resb 2
+    max resb 2
