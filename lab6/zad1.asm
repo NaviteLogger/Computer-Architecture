@@ -19,13 +19,14 @@ get_input:
     call get_number        ; 3. Wywołaj procedurę `get_number`, aby pobrać liczbę od użytkownika
 
     ; Zapisz wartość w zmiennej `min`
-    mov [min], ax          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
+    mov [min], bx          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
+    mov bx, 0              ; 5. Wyzeruj BX
 
     ; Pobierz maksymalną wartość
     mov dx, prompt2
     call print_string
     call get_number
-    mov [max], ax    ; Zapisz wartość w `max`
+    mov [max], bx    ; Zapisz wartość w `max`
 
     ; Sprawdź, czy min < max
     mov ax, [min]
@@ -39,7 +40,7 @@ get_input:
     ret
 
 invalid_range:
-    mov dx, invalid_input
+    mov dx, invalid_range_msg
     call print_string
     ret
 
@@ -126,8 +127,6 @@ get_number:
     xor bx, bx         ; Wyzeruj BX (będzie używany do przechowywania liczby)
 
 read_digit:
-    push bx            ; Zachowaj wartość w BX na stosie
-
     mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
     int 21h            ; Pobierz znak od użytkownika
     mov ah, 0          ; Wyzeruj rejestr AH
@@ -143,20 +142,11 @@ read_digit:
     jg invalid_input   ; Jeśli nie, zignoruj
 
     sub al, "0"        ; Konwertuj znak ASCII na cyfrę
-    mov dx, ax         ; Zapisuje ax do dx żeby nie stracić wpisanej wartości
-
-    mov cx, 10         ; Przesuń cyfry o jedno miejsce w lewo
-    mul cx             ; wynik mnożenia mul AX <- dole 16 bit wyniku, DX <- góra 16 bit wyniku
+    imul bx, 10        ; Przesuń w lewo bx o 1 miejsce   
     
     ; Dodanie dx do ax
-    add ax, dx
-    
-    ; Debugowanie: Sprawdź `BX` po mnożeniu
-    mov dx, ax
-    call print_string
-    call print_number
-    call new_line
-    
+    add bx, ax         ; Dodaj wartość do BX
+
     jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
     
     
@@ -167,13 +157,6 @@ invalid_input:
 
 
 done_input:
-    mov ax, bx         ; Przenieś wynik do AX
-
-    ; Debugowanie: Sprawdź wartość w AX przed powrotem
-    mov dx, debug_number
-    call print_string
-    call print_number
-    call new_line
     ret
 
 ;----------------------------------------------
@@ -247,6 +230,7 @@ section .data
     debug_before_sub db "Before sub '0': $"
     debug_after_sub db "After sub '0': $"
     invalid_char_msg db "Invalid character entered. Please enter digits only.$"
+    invalid_range_msg db "Invalid range. Please enter min < max.$"
     static_msg db "Debugging print_string...$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
