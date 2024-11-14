@@ -18,23 +18,36 @@ get_input:
     call print_string
     call get_number
     mov [min], ax
-    
+
+    ; Debugowanie - wypisz wartość `min`
+    mov dx, min_value_msg
+    call print_string
+    mov ax, [min]
+    call print_number
+    call new_line
+
     ; Pobierz maksymalną wartość
     mov dx, prompt2
     call print_string
     call get_number
     mov [max], ax
 
+    ; Debugowanie - wypisz wartość `max`
+    mov dx, max_value_msg
+    call print_string
+    mov ax, [max]
+    call print_number
+    call new_line
+
     ; Sprawdź, czy min < max
     mov ax, [min]
     cmp ax, [max]
     jge invalid_range
 
-    ; Debugowanie to moja pasja
     mov dx, valid_range
     call print_string
-
     ret
+
 
 invalid_range:
     mov dx, invalid_input
@@ -53,9 +66,18 @@ find_primes:
 next_number:
     cmp ax, [max]    ; Czy osiągnęliśmy max?
     jg done          ; Jeśli tak, zakończ
-    
-    mov dx, checking_primes
+
+    ; Debugowanie to moja pasja
+    mov dx, current_number_msg
     call print_string
+    call print_number
+
+    mov dx, max_value_msg
+    call print_string
+    mov ax, [max]
+    call print_number
+
+    ; Sprawdź, czy liczba jest pierwsza
     push ax          ; Zachowaj wartość na stosie
     call is_prime    ; Sprawdź, czy liczba jest pierwsza
     pop ax           ; Przywróć wartość ze stosu
@@ -124,12 +146,24 @@ read_digit:
     je done_input
 
     sub al, '0'       ; Konwertuj ASCII na cyfrę
+    mov dx, debug_digit
+    call print_string
+    mov dl, al
+    call print_char
+
     imul bx, 10
     add bx, ax
     jmp read_digit
 
 done_input:
     mov ax, bx
+
+    ; Debugowanie - wypisz wprowadzoną liczbę
+    mov dx, debug_number_msg
+    call print_string
+    call print_number
+    call new_line
+ 
     ret
 
 ;----------------------------------------------
@@ -138,6 +172,11 @@ done_input:
 ;----------------------------------------------
 print_string:
     mov ah, 9
+    int 21h
+    ret
+
+print_char:
+    mov ah, 2
     int 21h
     ret
 
@@ -188,6 +227,11 @@ section .data
     finding_primes db "Finding primes...$"
     checking_primes db "Checking primes...$"
     done_msg db "Done finding primes!$"
+    current_number_msg db "Current number: $"
+    min_value_msg db "Min value: $"
+    max_value_msg db "Max value: $"
+    debug_number_msg db "Number: $"
+    debug_digit db "Digit: $"
     invalid_input db "Invalid input! min must be less than max.$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
@@ -196,5 +240,5 @@ section .data
 ; Sekcja .bss - niezainicjalizowane zmienne
 ;----------------------------------------------
 section .bss
-    min resb 2
-    max resb 2
+    min resw 1
+    max resw 1
