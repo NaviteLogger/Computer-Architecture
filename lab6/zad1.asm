@@ -17,6 +17,14 @@ get_input:
     mov dx, prompt1        ; 1. Załaduj adres `prompt1` do rejestru DX
     call print_string      ; 2. Wywołaj procedurę `print_string` (wypisuje "Enter min value:")
     call get_number        ; 3. Wywołaj procedurę `get_number`, aby pobrać liczbę od użytkownika
+
+    ; Debugowanie: Sprawdź, co jest w AX po odczytaniu liczby
+    mov dx, debug_ax_value
+    call print_string
+    call print_number
+    call new_line
+
+    ; Zapisz wartość w zmiennej `min`
     mov [min], ax          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
 
     ; Debug: Sprawdź, co zapisano w `min`
@@ -26,7 +34,6 @@ get_input:
     call print_number      ; 8. Wypisz wartość z rejestru AX
     call new_line          ; 9. Przejdź do nowej linii
 
-    
     ; Pobierz maksymalną wartość
     mov dx, prompt2
     call print_string
@@ -142,7 +149,7 @@ read_digit:
     mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
     int 21h            ; Pobierz znak od użytkownika
 
-    ; Debugowanie przy użyciu `print_string`
+    ; Debugowanie: Wyświetl odczytany znak
     mov dl, al
     mov ah, 2
     int 21h
@@ -151,13 +158,52 @@ read_digit:
     cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
     je done_input      ; Jeśli Enter, zakończ wczytywanie
 
-    sub al, '0'        ; Konwertuj znak ASCII na cyfrę
-    imul bx, 10        ; Przesuń poprzednie cyfry o jedno miejsce w lewo
-    add bx, ax         ; Dodaj nową cyfrę do liczby
+    ; Debugowanie przed konwersją
+    mov dx, debug_before_sub
+    call print_string
+    mov dl, al
+    mov ah, 2
+    int 21h
+    call new_line
+
+    sub al, "0"       ; Konwertuj znak ASCII na cyfrę
+
+    ; Debugowanie: Sprawdź wartość `AL` po konwersji na cyfrę
+    mov dx, debug_digit
+    call print_string
+    mov dl, al
+    mov ah, 2
+    int 21h
+    call new_line
+
+    ; Przesuń cyfry o jedno miejsce w lewo
+    imul bx, 10
+    ; Debugowanie: Sprawdź `BX` po mnożeniu
+    mov ax, bx
+    mov dx, debug_mult
+    call print_string
+    call print_number
+    call new_line
+
+    ; Dodaj cyfrę do `BX`
+    add bx, ax
+    ; Debugowanie: Sprawdź `BX` po dodaniu cyfry
+    mov ax, bx
+    mov dx, debug_add
+    call print_string
+    call print_number
+    call new_line
+
     jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
 
 done_input:
     mov ax, bx         ; Przenieś wynik do AX
+
+    ; Debugowanie: Sprawdź wartość w AX przed powrotem
+    mov dx, debug_number
+    call print_string
+    call print_number
+    call new_line
     ret
 
 ;----------------------------------------------
@@ -219,12 +265,21 @@ section .data
     valid_range db "Valid range!$"
     after_input db "Proceeding to find primes...$"
     invalid_input db "Invalid input! min must be less than max.$"
+    debug_ax_value db "AX before saving to min: $"
     debug_char db "Read char: $"
     debug_min db "min value: $"
     debug_max db "max value: $"
     debug_min_set db "Value set for min: $"
     debug_max_set db "Value set for max: $"
     done_msg db "Done finding primes.$"
+    debug_number db "Number read: $"
+    debug_digit db "Read digit: $"
+    debug_mult db "After multiplication: $"
+    debug_add db "After addition: $"
+    debug_number_done db "Done reading number: $"
+    debug_before_sub db "Before sub '0': $"
+    debug_after_sub db "After sub '0': $"
+    invalid_char_msg db "Invalid character entered. Please enter digits only.$"
     static_msg db "Debugging print_string...$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
@@ -233,5 +288,5 @@ section .data
 ; Sekcja .bss - niezainicjalizowane zmienne
 ;----------------------------------------------
 section .bss
-    min resw 1
-    max resw 1
+    min resb 2
+    max resb 2
