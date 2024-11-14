@@ -2,254 +2,264 @@
      2                                      org 100h
      3                                  
      4                                  start:
-     5 00000000 E80B00                      call get_input       ; Pobierz zakres od użytkownika
-     6 00000003 BA[3100]                    mov dx, after_input
-     7 00000006 E8CF00                      call print_string
-     8 00000009 E84F00                      call find_primes     ; Znajdź liczby pierwsze
-     9 0000000C EBF2                        jmp start            ; Powtarzaj operację dla nowych zakresów
-    10                                  
-    11                                  ;----------------------------------------------
-    12                                  ; Procedura: get_input
-    13                                  ; Pobiera zakres od użytkownika
-    14                                  ;----------------------------------------------
-    15                                  get_input:
-    16                                      ; Pobierz minimalną wartość
-    17 0000000E BA[0000]                    mov dx, prompt1        ; 1. Załaduj adres `prompt1` do rejestru DX
-    18 00000011 E8C400                      call print_string      ; 2. Wywołaj procedurę `print_string` (wypisuje "Enter min value:")
-    19 00000014 E8A300                      call get_number        ; 3. Wywołaj procedurę `get_number`, aby pobrać liczbę od użytkownika
-    20 00000017 A3[0000]                    mov [min], ax          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
-    21                                  
-    22                                      ; Debug: Sprawdź, co zapisano w `min`
-    23 0000001A A1[0000]                    mov ax, [min]          ; 5. Załaduj wartość `min` z pamięci do rejestru AX
-    24 0000001D BA[9C00]                    mov dx, debug_min_set  ; 6. Załaduj adres komunikatu debugowego do rejestru DX
-    25 00000020 E8B500                      call print_string      ; 7. Wypisz komunikat "Value set for min:"
-    26 00000023 E8BD00                      call print_number      ; 8. Wypisz wartość z rejestru AX
-    27 00000026 E8D900                      call new_line          ; 9. Przejdź do nowej linii
-    28                                  
-    29                                      
-    30                                      ; Pobierz maksymalną wartość
-    31 00000029 BA[1200]                    mov dx, prompt2
-    32 0000002C E8A900                      call print_string
-    33 0000002F E88800                      call get_number
-    34 00000032 A3[0200]                    mov [max], ax    ; Zapisz wartość w `max`
-    35                                  
-    36                                      ; Debug: Sprawdź, co zapisano w `max`
-    37 00000035 A1[0200]                    mov ax, [max]
-    38 00000038 BA[B000]                    mov dx, debug_max_set
-    39 0000003B E89A00                      call print_string
-    40 0000003E E8A200                      call print_number
-    41 00000041 E8BE00                      call new_line
-    42                                  
-    43                                      ; Sprawdź, czy min < max
-    44 00000044 A1[0000]                    mov ax, [min]
-    45 00000047 3B06[0200]                  cmp ax, [max]
-    46 0000004B 7D07                        jge invalid_range
-    47                                  
-    48                                      ; Debugowanie to moja pasja
-    49 0000004D BA[2400]                    mov dx, valid_range
-    50 00000050 E88500                      call print_string
+     5 00000000 BA[2400]                    mov dx, test_message
+     6 00000003 E8E300                      call print_string   ; Test wypisywania
+     7 00000006 CD20                        int 20h             ; Zakończ program
+     8                                      
+     9 00000008 E80B00                      call get_input       ; Pobierz zakres od użytkownika
+    10 0000000B BA[3F00]                    mov dx, after_input
+    11 0000000E E8D800                      call print_string
+    12 00000011 E84F00                      call find_primes     ; Znajdź liczby pierwsze
+    13 00000014 EBEA                        jmp start            ; Powtarzaj operację dla nowych zakresów
+    14                                  
+    15                                  ;----------------------------------------------
+    16                                  ; Procedura: get_input
+    17                                  ; Pobiera zakres od użytkownika
+    18                                  ;----------------------------------------------
+    19                                  get_input:
+    20                                      ; Pobierz minimalną wartość
+    21 00000016 BA[0000]                    mov dx, prompt1        ; 1. Załaduj adres `prompt1` do rejestru DX
+    22 00000019 E8CD00                      call print_string      ; 2. Wywołaj procedurę `print_string` (wypisuje "Enter min value:")
+    23 0000001C E8A300                      call get_number        ; 3. Wywołaj procedurę `get_number`, aby pobrać liczbę od użytkownika
+    24 0000001F A3[0000]                    mov [min], ax          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
+    25                                  
+    26                                      ; Debug: Sprawdź, co zapisano w `min`
+    27 00000022 A1[0000]                    mov ax, [min]          ; 5. Załaduj wartość `min` z pamięci do rejestru AX
+    28 00000025 BA[AA00]                    mov dx, debug_min_set  ; 6. Załaduj adres komunikatu debugowego do rejestru DX
+    29 00000028 E8BE00                      call print_string      ; 7. Wypisz komunikat "Value set for min:"
+    30 0000002B E8C400                      call print_number      ; 8. Wypisz wartość z rejestru AX
+    31 0000002E E8E000                      call new_line          ; 9. Przejdź do nowej linii
+    32                                  
+    33                                      
+    34                                      ; Pobierz maksymalną wartość
+    35 00000031 BA[1200]                    mov dx, prompt2
+    36 00000034 E8B200                      call print_string
+    37 00000037 E88800                      call get_number
+    38 0000003A A3[0200]                    mov [max], ax    ; Zapisz wartość w `max`
+    39                                  
+    40                                      ; Debug: Sprawdź, co zapisano w `max`
+    41 0000003D A1[0200]                    mov ax, [max]
+    42 00000040 BA[BE00]                    mov dx, debug_max_set
+    43 00000043 E8A300                      call print_string
+    44 00000046 E8A900                      call print_number
+    45 00000049 E8C500                      call new_line
+    46                                  
+    47                                      ; Sprawdź, czy min < max
+    48 0000004C A1[0000]                    mov ax, [min]
+    49 0000004F 3B06[0200]                  cmp ax, [max]
+    50 00000053 7D07                        jge invalid_range
     51                                  
-    52 00000053 C3                          ret
-    53                                  
-    54                                  invalid_range:
-    55 00000054 BA[4E00]                    mov dx, invalid_input
-    56 00000057 E87E00                      call print_string
-    57 0000005A C3                          ret
-    58                                  
-    59                                  ;----------------------------------------------
-    60                                  ; Procedura: find_primes
-    61                                  ; Znajduje liczby pierwsze w zadanym przedziale
-    62                                  ;----------------------------------------------
-    63                                  find_primes:
-    64 0000005B A1[0000]                    mov ax, [min]
-    65 0000005E BA[8400]                    mov dx, debug_min
-    66 00000061 E87400                      call print_string
-    67 00000064 E87C00                      call print_number
-    68 00000067 E89800                      call new_line
-    69                                  
-    70 0000006A A1[0200]                    mov ax, [max]
-    71 0000006D BA[9000]                    mov dx, debug_max
-    72 00000070 E86500                      call print_string
-    73 00000073 E86D00                      call print_number
-    74 00000076 E88900                      call new_line
-    75                                  
-    76 00000079 A1[0000]                    mov ax, [min]
-    77                                      
-    78                                  next_number:
-    79 0000007C 3B06[0200]                  cmp ax, [max]    ; Czy osiągnęliśmy max?
-    80 00000080 7F19                        jg done          ; Jeśli tak, zakończ
+    52                                      ; Debugowanie to moja pasja
+    53 00000055 BA[3200]                    mov dx, valid_range
+    54 00000058 E88E00                      call print_string
+    55                                  
+    56 0000005B C3                          ret
+    57                                  
+    58                                  invalid_range:
+    59 0000005C BA[5C00]                    mov dx, invalid_input
+    60 0000005F E88700                      call print_string
+    61 00000062 C3                          ret
+    62                                  
+    63                                  ;----------------------------------------------
+    64                                  ; Procedura: find_primes
+    65                                  ; Znajduje liczby pierwsze w zadanym przedziale
+    66                                  ;----------------------------------------------
+    67                                  find_primes:
+    68 00000063 A1[0000]                    mov ax, [min]
+    69 00000066 BA[9200]                    mov dx, debug_min
+    70 00000069 E87D00                      call print_string
+    71 0000006C E88300                      call print_number
+    72 0000006F E89F00                      call new_line
+    73                                  
+    74 00000072 A1[0200]                    mov ax, [max]
+    75 00000075 BA[9E00]                    mov dx, debug_max
+    76 00000078 E86E00                      call print_string
+    77 0000007B E87400                      call print_number
+    78 0000007E E89000                      call new_line
+    79                                  
+    80 00000081 A1[0000]                    mov ax, [min]
     81                                      
-    82 00000082 50                          push ax          ; Zachowaj wartość na stosie
-    83 00000083 E81600                      call is_prime    ; Sprawdź, czy liczba jest pierwsza
-    84 00000086 58                          pop ax           ; Przywróć wartość ze stosu
+    82                                  next_number:
+    83 00000084 3B06[0200]                  cmp ax, [max]    ; Czy osiągnęliśmy max?
+    84 00000088 7F19                        jg done          ; Jeśli tak, zakończ
     85                                      
-    86 00000087 83FB01                      cmp bx, 1        ; Jeśli BX = 1, to liczba jest pierwsza
-    87 0000008A 750C                        jne skip_number
-    88                                  
-    89                                      ; Wyświetl liczbę pierwszą
-    90 0000008C BA[F300]                    mov dx, prime_msg
-    91 0000008F E84600                      call print_string
-    92 00000092 E84E00                      call print_number
-    93 00000095 E86A00                      call new_line
-    94                                  
-    95                                  skip_number:
-    96 00000098 40                          inc ax           ; Przejdź do następnej liczby
-    97 00000099 EBE1                        jmp next_number
+    86 0000008A 50                          push ax          ; Zachowaj wartość na stosie
+    87 0000008B E81600                      call is_prime    ; Sprawdź, czy liczba jest pierwsza
+    88 0000008E 58                          pop ax           ; Przywróć wartość ze stosu
+    89                                      
+    90 0000008F 83FB01                      cmp bx, 1        ; Jeśli BX = 1, to liczba jest pierwsza
+    91 00000092 750C                        jne skip_number
+    92                                  
+    93                                      ; Wyświetl liczbę pierwszą
+    94 00000094 BA[0101]                    mov dx, prime_msg
+    95 00000097 E84F00                      call print_string
+    96 0000009A E85500                      call print_number
+    97 0000009D E87100                      call new_line
     98                                  
-    99                                  done:
-   100 0000009B C3                          ret
-   101                                  
-   102                                  ;----------------------------------------------
-   103                                  ; Procedura: is_prime
-   104                                  ; Sprawdza, czy liczba w AX jest pierwsza
-   105                                  ; Zwraca wynik w BX (1 = pierwsza, 0 = niepierwsza)
+    99                                  skip_number:
+   100 000000A0 40                          inc ax           ; Przejdź do następnej liczby
+   101 000000A1 EBE1                        jmp next_number
+   102                                  
+   103                                  done:
+   104 000000A3 C3                          ret
+   105                                  
    106                                  ;----------------------------------------------
-   107                                  is_prime:
-   108 0000009C BB0200                      mov bx, 2
-   109 0000009F 89C1                        mov cx, ax
-   110                                      
-   111                                  check_divisor:
-   112 000000A1 39CB                        cmp bx, cx
-   113 000000A3 7D0D                        jge prime_found   ; Jeśli bx >= cx, liczba jest pierwsza
-   114                                  
-   115                                      ; Sprawdź, czy ax jest podzielne przez bx
-   116 000000A5 BA0000                      mov dx, 0
-   117 000000A8 F7F3                        div bx
-   118 000000AA 83FA00                      cmp dx, 0
-   119 000000AD 7407                        je not_a_prime    ; Jeśli reszta = 0, to liczba nie jest pierwsza
-   120                                  
-   121 000000AF 43                          inc bx            ; Sprawdź kolejny dzielnik
-   122 000000B0 EBEF                        jmp check_divisor
-   123                                  
-   124                                  prime_found:
-   125 000000B2 BB0100                      mov bx, 1         ; Liczba jest pierwsza
-   126 000000B5 C3                          ret
+   107                                  ; Procedura: is_prime
+   108                                  ; Sprawdza, czy liczba w AX jest pierwsza
+   109                                  ; Zwraca wynik w BX (1 = pierwsza, 0 = niepierwsza)
+   110                                  ;----------------------------------------------
+   111                                  is_prime:
+   112 000000A4 BB0200                      mov bx, 2
+   113 000000A7 89C1                        mov cx, ax
+   114                                      
+   115                                  check_divisor:
+   116 000000A9 39CB                        cmp bx, cx
+   117 000000AB 7D0D                        jge prime_found   ; Jeśli bx >= cx, liczba jest pierwsza
+   118                                  
+   119                                      ; Sprawdź, czy ax jest podzielne przez bx
+   120 000000AD BA0000                      mov dx, 0
+   121 000000B0 F7F3                        div bx
+   122 000000B2 83FA00                      cmp dx, 0
+   123 000000B5 7407                        je not_a_prime    ; Jeśli reszta = 0, to liczba nie jest pierwsza
+   124                                  
+   125 000000B7 43                          inc bx            ; Sprawdź kolejny dzielnik
+   126 000000B8 EBEF                        jmp check_divisor
    127                                  
-   128                                  not_a_prime:
-   129 000000B6 BB0000                      mov bx, 0         ; Liczba nie jest pierwsza
-   130 000000B9 C3                          ret
+   128                                  prime_found:
+   129 000000BA BB0100                      mov bx, 1         ; Liczba jest pierwsza
+   130 000000BD C3                          ret
    131                                  
-   132                                  ;----------------------------------------------
-   133                                  ; Procedura: get_number
-   134                                  ; Pobiera liczbę od użytkownika
-   135                                  ; Zwraca wynik w AX
+   132                                  not_a_prime:
+   133 000000BE BB0000                      mov bx, 0         ; Liczba nie jest pierwsza
+   134 000000C1 C3                          ret
+   135                                  
    136                                  ;----------------------------------------------
-   137                                  get_number:
-   138 000000BA 31C0                        xor ax, ax         ; Wyzeruj AX, aby nie było śmieci
-   139 000000BC 31DB                        xor bx, bx         ; Wyzeruj BX (będzie używany do przechowywania liczby)
-   140                                  
-   141                                  read_digit:
-   142 000000BE B401                        mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
-   143 000000C0 CD21                        int 21h            ; Pobierz znak od użytkownika
+   137                                  ; Procedura: get_number
+   138                                  ; Pobiera liczbę od użytkownika
+   139                                  ; Zwraca wynik w AX
+   140                                  ;----------------------------------------------
+   141                                  get_number:
+   142 000000C2 31C0                        xor ax, ax         ; Wyzeruj AX, aby nie było śmieci
+   143 000000C4 31DB                        xor bx, bx         ; Wyzeruj BX (będzie używany do przechowywania liczby)
    144                                  
-   145                                      ; Debug: Wypisz wczytany znak
-   146 000000C2 88C2                        mov dl, al
-   147 000000C4 B402                        mov ah, 2
-   148 000000C6 CD21                        int 21h
-   149                                  
-   150 000000C8 3C0D                        cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
-   151 000000CA 7409                        je done_input      ; Jeśli Enter, zakończ wczytywanie
-   152                                  
-   153 000000CC 2C30                        sub al, '0'        ; Konwertuj znak ASCII na cyfrę
-   154 000000CE 6BDB0A                      imul bx, 10        ; Przesuń poprzednie cyfry o jedno miejsce w lewo
-   155 000000D1 01C3                        add bx, ax         ; Dodaj nową cyfrę do liczby
-   156 000000D3 EBE9                        jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
-   157                                  
-   158                                  done_input:
-   159 000000D5 89D8                        mov ax, bx         ; Przenieś wynik do AX
-   160 000000D7 C3                          ret
-   161                                  
-   162                                  ;----------------------------------------------
-   163                                  ; Procedura: print_string
-   164                                  ; Wypisuje string zakończony znakiem $
-   165                                  ;----------------------------------------------
-   166                                  print_string:
-   167 000000D8 52                          push dx
-   168 000000D9 B409                        mov ah, 9
-   169 000000DB 8D16[D900]                  lea dx, static_msg
-   170 000000DF CD21                        int 21h
-   171 000000E1 5A                          pop dx
-   172 000000E2 C3                          ret
-   173                                  
-   174                                  ;----------------------------------------------
-   175                                  ; Procedura: print_number
-   176                                  ; Wypisuje liczbę z AX
-   177                                  ;----------------------------------------------
-   178                                  print_number:
-   179 000000E3 50                          push ax
-   180 000000E4 31C9                        xor cx, cx
-   181 000000E6 BB0A00                      mov bx, 10
-   182                                      
-   183                                  print_digit:
-   184 000000E9 31D2                        xor dx, dx
-   185 000000EB F7F3                        div bx
-   186 000000ED 80C230                      add dl, '0'
-   187 000000F0 52                          push dx
-   188 000000F1 41                          inc cx
-   189 000000F2 83F800                      cmp ax, 0
-   190 000000F5 75F2                        jne print_digit
-   191                                  
-   192                                  print_loop:
-   193 000000F7 5A                          pop dx
-   194 000000F8 B402                        mov ah, 2
-   195 000000FA 88C2                        mov dl, al
-   196 000000FC CD21                        int 21h
-   197 000000FE E2F7                        loop print_loop
-   198 00000100 58                          pop ax
-   199 00000101 C3                          ret
-   200                                  
-   201                                  ;----------------------------------------------
-   202                                  ; Procedura: new_line
-   203                                  ; Wypisuje nową linię
-   204                                  ;----------------------------------------------
-   205                                  new_line:
-   206 00000102 BA[FB00]                    mov dx, newline
-   207 00000105 E8D0FF                      call print_string
-   208 00000108 C3                          ret
-   209                                  
-   210                                  ;----------------------------------------------
-   211                                  ; Sekcja .data - inicjalizowane zmienne
+   145                                  read_digit:
+   146 000000C6 B401                        mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
+   147 000000C8 CD21                        int 21h            ; Pobierz znak od użytkownika
+   148                                  
+   149                                      ; Debugowanie przy użyciu `print_string`
+   150 000000CA BA[8600]                    mov dx, debug_char
+   151 000000CD E81900                      call print_string
+   152 000000D0 88C2                        mov dl, al
+   153 000000D2 B402                        mov ah, 2
+   154 000000D4 CD21                        int 21h
+   155 000000D6 E83800                      call new_line
+   156                                  
+   157 000000D9 3C0D                        cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
+   158 000000DB 7409                        je done_input      ; Jeśli Enter, zakończ wczytywanie
+   159                                  
+   160 000000DD 2C30                        sub al, '0'        ; Konwertuj znak ASCII na cyfrę
+   161 000000DF 6BDB0A                      imul bx, 10        ; Przesuń poprzednie cyfry o jedno miejsce w lewo
+   162 000000E2 01C3                        add bx, ax         ; Dodaj nową cyfrę do liczby
+   163 000000E4 EBE0                        jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
+   164                                  
+   165                                  done_input:
+   166 000000E6 89D8                        mov ax, bx         ; Przenieś wynik do AX
+   167 000000E8 C3                          ret
+   168                                  
+   169                                  ;----------------------------------------------
+   170                                  ; Procedura: print_string
+   171                                  ; Wypisuje string zakończony znakiem $
+   172                                  ;----------------------------------------------
+   173                                  print_string:
+   174 000000E9 50                          push ax
+   175 000000EA 52                          push dx
+   176 000000EB B409                        mov ah, 9
+   177 000000ED CD21                        int 21h
+   178 000000EF 5A                          pop dx
+   179 000000F0 58                          pop ax
+   180 000000F1 C3                          ret
+   181                                  
+   182                                  ;----------------------------------------------
+   183                                  ; Procedura: print_number
+   184                                  ; Wypisuje liczbę z AX
+   185                                  ;----------------------------------------------
+   186                                  print_number:
+   187 000000F2 50                          push ax
+   188 000000F3 31C9                        xor cx, cx
+   189 000000F5 BB0A00                      mov bx, 10
+   190                                      
+   191                                  print_digit:
+   192 000000F8 31D2                        xor dx, dx
+   193 000000FA F7F3                        div bx
+   194 000000FC 80C230                      add dl, '0'
+   195 000000FF 52                          push dx
+   196 00000100 41                          inc cx
+   197 00000101 83F800                      cmp ax, 0
+   198 00000104 75F2                        jne print_digit
+   199                                  
+   200                                  print_loop:
+   201 00000106 5A                          pop dx
+   202 00000107 B402                        mov ah, 2
+   203 00000109 88C2                        mov dl, al
+   204 0000010B CD21                        int 21h
+   205 0000010D E2F7                        loop print_loop
+   206 0000010F 58                          pop ax
+   207 00000110 C3                          ret
+   208                                  
+   209                                  ;----------------------------------------------
+   210                                  ; Procedura: new_line
+   211                                  ; Wypisuje nową linię
    212                                  ;----------------------------------------------
-   213                                  section .data
-   214 00000000 456E746572206D696E-         prompt1 db "Enter min value: $"
-   214 00000009 2076616C75653A2024 
-   215 00000012 456E746572206D6178-         prompt2 db "Enter max value: $"
-   215 0000001B 2076616C75653A2024 
-   216 00000024 56616C69642072616E-         valid_range db "Valid range!$"
-   216 0000002D 67652124           
-   217 00000031 50726F63656564696E-         after_input db "Proceeding to find primes...$"
-   217 0000003A 6720746F2066696E64-
-   217 00000043 207072696D65732E2E-
-   217 0000004C 2E24               
-   218 0000004E 496E76616C69642069-         invalid_input db "Invalid input! min must be less than max.$"
-   218 00000057 6E70757421206D696E-
-   218 00000060 206D75737420626520-
-   218 00000069 6C657373207468616E-
-   218 00000072 206D61782E24       
-   219 00000078 526561642063686172-         debug_char db "Read char: $"
-   219 00000081 3A2024             
-   220 00000084 6D696E2076616C7565-         debug_min db "min value: $"
-   220 0000008D 3A2024             
-   221 00000090 6D61782076616C7565-         debug_max db "max value: $"
-   221 00000099 3A2024             
-   222 0000009C 56616C756520736574-         debug_min_set db "Value set for min: $"
-   222 000000A5 20666F72206D696E3A-
-   222 000000AE 2024               
-   223 000000B0 56616C756520736574-         debug_max_set db "Value set for max: $"
-   223 000000B9 20666F72206D61783A-
-   223 000000C2 2024               
-   224 000000C4 446F6E652066696E64-         done_msg db "Done finding primes.$"
-   224 000000CD 696E67207072696D65-
-   224 000000D6 732E24             
-   225 000000D9 446562756767696E67-         static_msg db "Debugging print_string...$"
-   225 000000E2 207072696E745F7374-
-   225 000000EB 72696E672E2E2E24   
-   226 000000F3 5072696D653A2024            prime_msg db "Prime: $"
-   227 000000FB 0D0A24                      newline db 13, 10, '$'
-   228                                  
-   229                                  ;----------------------------------------------
-   230                                  ; Sekcja .bss - niezainicjalizowane zmienne
-   231                                  ;----------------------------------------------
-   232                                  section .bss
-   233 00000000 ????                        min resw 1
-   234 00000002 ????                        max resw 1
+   213                                  new_line:
+   214 00000111 BA[0901]                    mov dx, newline
+   215 00000114 E8D2FF                      call print_string
+   216 00000117 C3                          ret
+   217                                  
+   218                                  ;----------------------------------------------
+   219                                  ; Sekcja .data - inicjalizowane zmienne
+   220                                  ;----------------------------------------------
+   221                                  section .data
+   222 00000000 456E746572206D696E-         prompt1 db "Enter min value: $"
+   222 00000009 2076616C75653A2024 
+   223 00000012 456E746572206D6178-         prompt2 db "Enter max value: $"
+   223 0000001B 2076616C75653A2024 
+   224 00000024 48656C6C6F2C20776F-         test_message db "Hello, world!$"
+   224 0000002D 726C642124         
+   225 00000032 56616C69642072616E-         valid_range db "Valid range!$"
+   225 0000003B 67652124           
+   226 0000003F 50726F63656564696E-         after_input db "Proceeding to find primes...$"
+   226 00000048 6720746F2066696E64-
+   226 00000051 207072696D65732E2E-
+   226 0000005A 2E24               
+   227 0000005C 496E76616C69642069-         invalid_input db "Invalid input! min must be less than max.$"
+   227 00000065 6E70757421206D696E-
+   227 0000006E 206D75737420626520-
+   227 00000077 6C657373207468616E-
+   227 00000080 206D61782E24       
+   228 00000086 526561642063686172-         debug_char db "Read char: $"
+   228 0000008F 3A2024             
+   229 00000092 6D696E2076616C7565-         debug_min db "min value: $"
+   229 0000009B 3A2024             
+   230 0000009E 6D61782076616C7565-         debug_max db "max value: $"
+   230 000000A7 3A2024             
+   231 000000AA 56616C756520736574-         debug_min_set db "Value set for min: $"
+   231 000000B3 20666F72206D696E3A-
+   231 000000BC 2024               
+   232 000000BE 56616C756520736574-         debug_max_set db "Value set for max: $"
+   232 000000C7 20666F72206D61783A-
+   232 000000D0 2024               
+   233 000000D2 446F6E652066696E64-         done_msg db "Done finding primes.$"
+   233 000000DB 696E67207072696D65-
+   233 000000E4 732E24             
+   234 000000E7 446562756767696E67-         static_msg db "Debugging print_string...$"
+   234 000000F0 207072696E745F7374-
+   234 000000F9 72696E672E2E2E24   
+   235 00000101 5072696D653A2024            prime_msg db "Prime: $"
+   236 00000109 0D0A24                      newline db 13, 10, '$'
+   237                                  
+   238                                  ;----------------------------------------------
+   239                                  ; Sekcja .bss - niezainicjalizowane zmienne
+   240                                  ;----------------------------------------------
+   241                                  section .bss
+   242 00000000 ????                        min resw 1
+   243 00000002 ????                        max resw 1

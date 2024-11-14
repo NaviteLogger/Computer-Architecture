@@ -142,10 +142,11 @@ read_digit:
     mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
     int 21h            ; Pobierz znak od użytkownika
 
-    ; Debug: Wypisz wczytany znak
+    ; Debugowanie przy użyciu `print_string`
     mov dl, al
     mov ah, 2
     int 21h
+    call new_line
 
     cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
     je done_input      ; Jeśli Enter, zakończ wczytywanie
@@ -164,11 +165,12 @@ done_input:
 ; Wypisuje string zakończony znakiem $
 ;----------------------------------------------
 print_string:
+    push ax
     push dx
     mov ah, 9
-    lea dx, static_msg
     int 21h
     pop dx
+    pop ax
     ret
 
 ;----------------------------------------------
@@ -213,6 +215,7 @@ new_line:
 section .data
     prompt1 db "Enter min value: $"
     prompt2 db "Enter max value: $"
+    test_message db "Hello, world!$"
     valid_range db "Valid range!$"
     after_input db "Proceeding to find primes...$"
     invalid_input db "Invalid input! min must be less than max.$"
