@@ -2,11 +2,20 @@ section .text
     org 100h
 
 start:
+    xor ax, ax
+    xor bx, bx
+    xor cx, cx
+    xor dx, dx
+
     call get_input       ; Pobierz zakres od użytkownika
     mov dx, after_input
     call print_string
+    call new_line
     call find_primes     ; Znajdź liczby pierwsze
     jmp start            ; Powtarzaj operację dla nowych zakresów
+
+    mov ah, 0x4c 
+    int 21h
 
 ;----------------------------------------------
 ; Procedura: get_input
@@ -36,49 +45,45 @@ get_input:
     ; Debugowanie to moja pasja
     mov dx, valid_range
     call print_string
+    call new_line
 
     ret
 
 invalid_range:
     mov dx, invalid_range_msg
     call print_string
-    ret
+    call new_line
+    
+    jmp get_input
+    
 
 ;----------------------------------------------
 ; Procedura: find_primes
 ; Znajduje liczby pierwsze w zadanym przedziale
 ;----------------------------------------------
 find_primes:
-    mov ax, [min]
-    mov dx, debug_min
-    call print_string
-    call print_number
-    call new_line
-
-    mov ax, [max]
-    mov dx, debug_max
-    call print_string
-    call print_number
-    call new_line
-
-    mov ax, [min]
+    mov ax, [min] ; Zaczynamy od dolnej granicy
+    jmp next_number
     
 next_number:
-    cmp ax, [max]    ; Czy osiągnęliśmy max?
+    cmp ax, [max]    ; Czy dojechaliśmy za górną granicę?
     jg done          ; Jeśli tak, zakończ
-    
+
     push ax          ; Zachowaj wartość na stosie
     call is_prime    ; Sprawdź, czy liczba jest pierwsza
     pop ax           ; Przywróć wartość ze stosu
-    
+
     cmp bx, 1        ; Jeśli BX = 1, to liczba jest pierwsza
     jne skip_number
 
     ; Wyświetl liczbę pierwszą
     mov dx, prime_msg
     call print_string
+    
+    mov dx, ax
     call print_number
     call new_line
+    jmp skip_number
 
 skip_number:
     inc ax           ; Przejdź do następnej liczby
@@ -93,16 +98,23 @@ done:
 ; Zwraca wynik w BX (1 = pierwsza, 0 = niepierwsza)
 ;----------------------------------------------
 is_prime:
-    mov bx, 2
-    mov cx, ax
+    mov bx, 2  ; bx - pierwszy dzielnik
     
+    cmp ax, 1  ; 1 nie jest liczbą pierwszą
+    jng not_a_prime
+
+    mov cx, ax ; cx - górna granica dzielników
+    jmp check_divisor
+
 check_divisor:
     cmp bx, cx
     jge prime_found   ; Jeśli bx >= cx, liczba jest pierwsza
 
     ; Sprawdź, czy ax jest podzielne przez bx
+    mov ax, cx
     mov dx, 0
     div bx
+    
     cmp dx, 0
     je not_a_prime    ; Jeśli reszta = 0, to liczba nie jest pierwsza
 
@@ -142,18 +154,31 @@ read_digit:
     jg invalid_input   ; Jeśli nie, zignoruj
 
     sub al, "0"        ; Konwertuj znak ASCII na cyfrę
+    push bx            ; Zachowaj wartość na stosie
     imul bx, 10        ; Przesuń w lewo bx o 1 miejsce   
     
     ; Dodanie dx do ax
     add bx, ax         ; Dodaj wartość do BX
+    pop cx             ; Odczytaj wartość ze stosu
+
+    cmp bx, cx         ; Sprawdź, czy nowa wartość mieści się w 16 bitach
+    jl overflow  ; Jeśli nie, zignoruj
 
     jmp read_digit     ; Kontynuuj wczytywanie kolejnych cyfr
     
+overflow:
+    call new_line
+    mov dx, overflow_msg
+    call print_string
+    call new_line
+    jmp start
     
 invalid_input:
+    call new_line
     mov dx, invalid_char_msg
     call print_string
-    jmp read_digit
+    call new_line
+    jmp start
 
 
 done_input:
@@ -176,24 +201,35 @@ print_string:
 ;----------------------------------------------
 print_number:
     push ax
-    xor cx, cx
     mov bx, 10
+    jmp print_digit
     
 print_digit:
+    mov ax, dx
     xor dx, dx
-    div bx
-    add dl, '0'
-    push dx
-    inc cx
-    cmp ax, 0
-    jne print_digit
+    div bx ; Ax - to co wypisujemy, dx - reszta, którą wypiszemy później
 
-print_loop:
-    pop dx
+    cmp ax, 0
+    je end_print_digit
+
+    push dx ; Zachowanie reszty na stosie
+    
+    mov dx, ax
+    add dx, "0"    ; Konwersja cyfry na znak
+    ; mov dx, test_msg
     mov ah, 2
-    mov dl, al
     int 21h
-    loop print_loop
+
+    pop dx ; Odczytanie reszty ze stosu
+
+    
+    jmp print_digit
+
+end_print_digit:
+    add dx, "0"
+    mov ah, 2
+    int 21h
+
     pop ax
     ret
 
@@ -212,26 +248,13 @@ new_line:
 section .data
     prompt1 db "Enter min value: $"
     prompt2 db "Enter max value: $"
-    test_message db "Hello, world!$"
     valid_range db "Valid range!$"
+    overflow_msg db "Number is too large. Please enter a smaller number.$"
+    test_msg db "Test if it works $"
     after_input db "Proceeding to find primes...$"
     debug_ax_value db "AX before saving to min: $"
-    debug_char db "Read char: $"
-    debug_min db "min value: $"
-    debug_max db "max value: $"
-    debug_min_set db "Value set for min: $"
-    debug_max_set db "Value set for max: $"
-    done_msg db "Done finding primes.$"
-    debug_number db "Number read: $"
-    debug_digit db "Read digit: $"
-    debug_mult db "After multiplication: $"
-    debug_add db "After addition: $"
-    debug_number_done db "Done reading number: $"
-    debug_before_sub db "Before sub '0': $"
-    debug_after_sub db "After sub '0': $"
     invalid_char_msg db "Invalid character entered. Please enter digits only.$"
     invalid_range_msg db "Invalid range. Please enter min < max.$"
-    static_msg db "Debugging print_string...$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
 
