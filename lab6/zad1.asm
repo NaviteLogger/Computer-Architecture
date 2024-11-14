@@ -14,16 +14,31 @@ start:
 ;----------------------------------------------
 get_input:
     ; Pobierz minimalną wartość
-    mov dx, prompt1
-    call print_string
-    call get_number
-    mov [min], ax
+    mov dx, prompt1        ; 1. Załaduj adres `prompt1` do rejestru DX
+    call print_string      ; 2. Wywołaj procedurę `print_string` (wypisuje "Enter min value:")
+    call get_number        ; 3. Wywołaj procedurę `get_number`, aby pobrać liczbę od użytkownika
+    mov [min], ax          ; 4. Zapisz wartość z rejestru AX do zmiennej `min`
+
+    ; Debug: Sprawdź, co zapisano w `min`
+    mov ax, [min]          ; 5. Załaduj wartość `min` z pamięci do rejestru AX
+    mov dx, debug_min_set  ; 6. Załaduj adres komunikatu debugowego do rejestru DX
+    call print_string      ; 7. Wypisz komunikat "Value set for min:"
+    call print_number      ; 8. Wypisz wartość z rejestru AX
+    call new_line          ; 9. Przejdź do nowej linii
+
     
     ; Pobierz maksymalną wartość
     mov dx, prompt2
     call print_string
     call get_number
-    mov [max], ax
+    mov [max], ax    ; Zapisz wartość w `max`
+
+    ; Debug: Sprawdź, co zapisano w `max`
+    mov ax, [max]
+    mov dx, debug_max_set
+    call print_string
+    call print_number
+    call new_line
 
     ; Sprawdź, czy min < max
     mov ax, [min]
@@ -46,6 +61,18 @@ invalid_range:
 ; Znajduje liczby pierwsze w zadanym przedziale
 ;----------------------------------------------
 find_primes:
+    mov ax, [min]
+    mov dx, debug_min
+    call print_string
+    call print_number
+    call new_line
+
+    mov ax, [max]
+    mov dx, debug_max
+    call print_string
+    call print_number
+    call new_line
+
     mov ax, [min]
     
 next_number:
@@ -112,8 +139,14 @@ get_number:
     xor bx, bx         ; Wyzeruj BX (będzie używany do przechowywania liczby)
 
 read_digit:
-    mov ah, 01h        ; Funkcja DOS do odczytu znaku z klawiatury
+    mov ah, 1          ; Funkcja DOS do odczytu znaku z klawiatury
     int 21h            ; Pobierz znak od użytkownika
+
+    ; Debug: Wypisz wczytany znak
+    mov dl, al
+    mov ah, 2
+    int 21h
+
     cmp al, 13         ; Sprawdź, czy Enter (kod ASCII 13)
     je done_input      ; Jeśli Enter, zakończ wczytywanie
 
@@ -131,8 +164,11 @@ done_input:
 ; Wypisuje string zakończony znakiem $
 ;----------------------------------------------
 print_string:
+    push dx
     mov ah, 9
+    lea dx, static_msg
     int 21h
+    pop dx
     ret
 
 ;----------------------------------------------
@@ -180,6 +216,13 @@ section .data
     valid_range db "Valid range!$"
     after_input db "Proceeding to find primes...$"
     invalid_input db "Invalid input! min must be less than max.$"
+    debug_char db "Read char: $"
+    debug_min db "min value: $"
+    debug_max db "max value: $"
+    debug_min_set db "Value set for min: $"
+    debug_max_set db "Value set for max: $"
+    done_msg db "Done finding primes.$"
+    static_msg db "Debugging print_string...$"
     prime_msg db "Prime: $"
     newline db 13, 10, '$'
 
@@ -187,5 +230,5 @@ section .data
 ; Sekcja .bss - niezainicjalizowane zmienne
 ;----------------------------------------------
 section .bss
-    min resb 2
-    max resb 2
+    min resw 1
+    max resw 1
